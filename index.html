@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WorldScope — Global Country Explorer</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="brand">
+        <span class="brand-symbol">◈</span>
+        <div class="brand-text">
+          <h1 class="brand-name">WorldScope</h1>
+          <p class="brand-tagline">Global Country Intelligence</p>
+        </div>
+      </div>
+      <div class="header-controls">
+        <div class="live-indicator">
+          <span class="pulse-dot"></span>
+          <span class="live-text">LIVE DATA</span>
+        </div>
+        <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode">
+          <span class="theme-icon" id="themeIcon">☀</span>
+          <span class="theme-label" id="themeLabel">Light Mode</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Control Bar -->
+  <section class="control-bar" aria-label="Search and filter controls">
+    <div class="control-inner">
+
+      <!-- Search -->
+      <div class="search-wrap">
+        <span class="search-icon" aria-hidden="true">⌕</span>
+        <input
+          type="search"
+          id="searchInput"
+          class="search-input"
+          placeholder="Search by name, capital, language, currency…"
+          autocomplete="off"
+          spellcheck="false"
+          aria-label="Search countries"
+        />
+        <button class="clear-btn" id="clearBtn" aria-label="Clear all filters" title="Clear all filters">✕</button>
+      </div>
+
+      <!-- Filters -->
+      <div class="filters-row">
+        <div class="select-wrap">
+          <label class="select-label" for="regionFilter">Region</label>
+          <select id="regionFilter" class="filter-select" aria-label="Filter by region">
+            <option value="">All Regions</option>
+            <option value="Africa">Africa</option>
+            <option value="Americas">Americas</option>
+            <option value="Asia">Asia</option>
+            <option value="Europe">Europe</option>
+            <option value="Oceania">Oceania</option>
+            <option value="Antarctic">Antarctic</option>
+          </select>
+        </div>
+
+        <div class="select-wrap">
+          <label class="select-label" for="popFilter">Population</label>
+          <select id="popFilter" class="filter-select" aria-label="Filter by population">
+            <option value="">All Populations</option>
+            <option value="small">Under 10 Million</option>
+            <option value="medium">10M – 100M</option>
+            <option value="large">Over 100 Million</option>
+          </select>
+        </div>
+
+        <div class="select-wrap">
+          <label class="select-label" for="sortFilter">Sort By</label>
+          <select id="sortFilter" class="filter-select" aria-label="Sort countries">
+            <option value="name-asc">Name A → Z</option>
+            <option value="name-desc">Name Z → A</option>
+            <option value="pop-desc">Population ↓</option>
+            <option value="pop-asc">Population ↑</option>
+          </select>
+        </div>
+
+        <div class="select-wrap fav-wrap">
+          <span class="select-label">Saved</span>
+          <button class="fav-toggle" id="favToggle" aria-label="Show favorites only" aria-pressed="false">
+            ♥ Favorites
+          </button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Results Meta Bar -->
+    <div class="meta-bar">
+      <div class="result-count" id="resultCount" aria-live="polite">— results</div>
+      <div class="meta-divider" aria-hidden="true">|</div>
+      <div class="active-filters" id="activeFilters" aria-label="Active filters"></div>
+    </div>
+  </section>
+
+  <!-- Stats Dashboard -->
+  <section class="stats-bar" aria-label="Statistics">
+    <div class="stats-inner">
+      <div class="stat-item">
+        <span class="stat-num" id="statTotal">—</span>
+        <span class="stat-desc">Total Countries</span>
+      </div>
+      <div class="stat-divider" aria-hidden="true"></div>
+      <div class="stat-item">
+        <span class="stat-num" id="statShown">—</span>
+        <span class="stat-desc">Currently Shown</span>
+      </div>
+      <div class="stat-divider" aria-hidden="true"></div>
+      <div class="stat-item">
+        <span class="stat-num" id="statRegions">—</span>
+        <span class="stat-desc">Regions</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Main Content -->
+  <main class="main-content" id="mainContent">
+
+    <!-- Loading State (fallback) -->
+    <div class="loading-state hidden" id="loadingState" aria-label="Loading">
+      <div class="spinner-ring"></div>
+      <p class="loading-text">Fetching global data<span class="loading-dots"></span></p>
+    </div>
+
+    <!-- Error State -->
+    <div class="error-state hidden" id="errorState" role="alert">
+      <div class="error-icon" aria-hidden="true">⚠</div>
+      <h3 class="error-title">Connection Failed</h3>
+      <p class="error-message" id="errorMessage">Unable to reach the data source.</p>
+      <button class="retry-btn" id="retryBtn">↺ Retry</button>
+    </div>
+
+    <!-- Empty State -->
+    <div class="empty-state hidden" id="emptyState" role="status">
+      <div class="empty-icon" aria-hidden="true">◎</div>
+      <h3 class="empty-title">No results found</h3>
+      <p class="empty-message">No countries match your current filters. Try adjusting your search.</p>
+    </div>
+
+    <!-- Cards Grid -->
+    <div class="cards-grid" id="cardsGrid" role="list" aria-label="Country cards"></div>
+
+  </main>
+
+  <!-- Country Detail Modal -->
+  <div class="modal-wrap hidden" id="countryModal" role="dialog" aria-modal="true" aria-label="Country details" aria-hidden="true">
+    <div class="modal-overlay" id="modalOverlay"></div>
+    <div class="modal-panel" role="document">
+      <button class="modal-close" id="modalClose" aria-label="Close modal">✕</button>
+      <div class="modal-body" id="modalBody"></div>
+    </div>
+  </div>
+
+  <!-- Back to Top -->
+  <button class="back-to-top" id="backToTop" aria-label="Back to top">↑</button>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <p class="footer-copy">◈ WorldScope — Data sourced from <a href="https://restcountries.com" target="_blank" rel="noopener">REST Countries API</a></p>
+      <p class="footer-note">Built with Vanilla JS · ES6+ · Fetch API</p>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
